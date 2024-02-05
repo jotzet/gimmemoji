@@ -1,46 +1,75 @@
-import React, { useState } from "react";
-import "./App.css";
-import getEmojis from "./utils/getEmojis.js";
+import { useState } from "react";
 
 function App() {
-  const [inputText, setInputText] = useState("");
-  const [outputText, setOutputText] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleChange = (event) => {
-    setInputText(event.target.value);
+  const emojiMap = {
+    disappointment: "😞",
+    sadness: "😢",
+    annoyance: "😠",
+    neutral: "😐",
+    disapproval: "👎",
+    realization: "💡",
+    nervousness: "😰",
+    approval: "👍",
+    joy: "😄",
+    anger: "😡",
+    embarrassment: "😳",
+    caring: "❤️",
+    remorse: "😔",
+    disgust: "🤢",
+    grief: "💔",
+    confusion: "😕",
+    relief: "😌",
+    desire: "😍",
+    admiration: "😊",
+    optimism: "😊",
+    fear: "😨",
+    love: "❤️",
+    excitement: "😃",
+    curiosity: "🤔",
+    amusement: "😆",
+    surprise: "😲",
+    gratitude: "🙏",
+    pride: "🏆",
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setIsLoading(true); // Show loading indicator
+  const [userInput, setUserInput] = useState("");
+  const [processedInput, setProcessedInput] = useState("");
 
-    try {
-      const result = await getEmojis(inputText);
-      setOutputText(inputText + result);
-    } catch (error) {
-      console.error("Error:", error);
-    } finally {
-      setIsLoading(false); // Hide loading indicator
-    }
+  const handleSubmit = () => {
+    fetch("http://localhost:5000/process", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ input_data: userInput }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const highScoreEmotions = data.result.filter(
+          (emotion) => emotion.score > 0.5
+        );
+
+        let emojiString = "";
+
+        for (let element of highScoreEmotions) {
+          emojiString = emojiString + emojiMap[element.label];
+        }
+        setProcessedInput(userInput + emojiString);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
+  const handleInputChange = (e) => {
+    setUserInput(e.target.value);
   };
 
   return (
-    <div className="container">
-      <h1>Gimmemoji</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          className="input-field"
-          type="text"
-          value={inputText}
-          onChange={handleChange}
-          placeholder="Enter text"
-        />
-        <button className="submit-button" type="submit" disabled={isLoading}>
-          {isLoading ? "Loading..." : "Add Emojis"}
-        </button>
-      </form>
-      {outputText}
+    <div>
+      <input type="text" value={userInput} onChange={handleInputChange} />
+      <button onClick={handleSubmit}>Process</button>
+      <div>{processedInput}</div>
     </div>
   );
 }
