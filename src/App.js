@@ -1,41 +1,16 @@
 import { useState } from "react";
+import { emotionMap } from "./utils/emotionMap";
+import TestingTable from "./components/testingTable";
+import { testData } from "./utils/testData";
 
 function App() {
-  const emojiMap = {
-    disappointment: "😞",
-    sadness: "😢",
-    annoyance: "😠",
-    neutral: "😐",
-    disapproval: "👎",
-    realization: "💡",
-    nervousness: "😰",
-    approval: "👍",
-    joy: "😄",
-    anger: "😡",
-    embarrassment: "😳",
-    caring: "❤️",
-    remorse: "😔",
-    disgust: "🤢",
-    grief: "💔",
-    confusion: "😕",
-    relief: "😌",
-    desire: "😍",
-    admiration: "😊",
-    optimism: "😊",
-    fear: "😨",
-    love: "❤️",
-    excitement: "😃",
-    curiosity: "🤔",
-    amusement: "😆",
-    surprise: "😲",
-    gratitude: "🙏",
-    pride: "🏆",
-  };
-
   const [userInput, setUserInput] = useState("");
-  const [processedInput, setProcessedInput] = useState("");
+  const [processedInput, setProcessedInput] = useState([]);
+  const [inputValue, setInputValue] = useState("");
+  const [isTestingTableVisible, setIsTestingTableVisible] = useState(false);
 
   const handleSubmit = () => {
+    setInputValue(userInput);
     fetch("http://localhost:5000/process", {
       method: "POST",
       headers: {
@@ -45,16 +20,8 @@ function App() {
     })
       .then((response) => response.json())
       .then((data) => {
-        const highScoreEmotions = data.result.filter(
-          (emotion) => emotion.score > 0.5
-        );
-
-        let emojiString = "";
-
-        for (let element of highScoreEmotions) {
-          emojiString = emojiString + emojiMap[element.label];
-        }
-        setProcessedInput(userInput + emojiString);
+        console.log(data);
+        setProcessedInput(data);
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -65,11 +32,36 @@ function App() {
     setUserInput(e.target.value);
   };
 
+  const handleTestButtonClick = () => {
+    setIsTestingTableVisible(true);
+  };
+
   return (
     <div>
+      <h1>Gimmemoji</h1>
       <input type="text" value={userInput} onChange={handleInputChange} />
       <button onClick={handleSubmit}>Process</button>
-      <div>{processedInput}</div>
+
+      {processedInput.length > 0 && inputValue.length > 0 ? (
+        <div>
+          <h2>Models:</h2>
+          <h3>SamLowe/roberta-base-go_emotions</h3>
+          {inputValue} {emotionMap[processedInput[0].label]}
+          <h3>michellejieli / emotion_text_classifier</h3>
+          {inputValue} {emotionMap[processedInput[1].label]}
+          <h3>bhadresh-savani / bert-base-uncased-emotion </h3>
+          {inputValue} {emotionMap[processedInput[2].label]}
+        </div>
+      ) : null}
+
+      {isTestingTableVisible && (
+        <div>
+          <h4>Tests:</h4>
+          <TestingTable inputs={testData} />
+        </div>
+      )}
+
+      <button onClick={handleTestButtonClick}>Test the models</button>
     </div>
   );
 }
