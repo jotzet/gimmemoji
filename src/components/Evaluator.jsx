@@ -26,17 +26,21 @@ const Evaluator = () => {
 
   return (
     <div>
-      <div>
-        <p>
-          Model 1 Score: {scores[0]}/{scores[3]}
-        </p>
-        <p>
-          Model 2 Score: {scores[1]}/{scores[3]}
-        </p>
-        <p>
-          Model 3 Score: {scores[2]}/{scores[3]}
-        </p>
-      </div>
+      {scores.length === 0 ? (
+        <p>Loading...</p>
+      ) : (
+        <div>
+          <p>
+            Model 1 Score: {scores[0]}/{scores[3]}
+          </p>
+          <p>
+            Model 2 Score: {scores[1]}/{scores[3]}
+          </p>
+          <p>
+            Model 3 Score: {scores[2]}/{scores[3]}
+          </p>
+        </div>
+      )}
     </div>
   );
 };

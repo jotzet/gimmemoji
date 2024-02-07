@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./App.css";
 import Evaluator from "./components/Evaluator";
 
 function App() {
@@ -6,9 +7,11 @@ function App() {
   const [processedInput, setProcessedInput] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [showEvalution, setShowEvaluation] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // New state for loading indicator
 
   const handleSubmit = () => {
     setInputValue(userInput);
+    setIsLoading(true); // Set loading state to true when starting the fetch operation
     fetch("http://localhost:5000/process", {
       method: "POST",
       headers: {
@@ -23,6 +26,9 @@ function App() {
       })
       .catch((error) => {
         console.error("Error:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -37,9 +43,12 @@ function App() {
   return (
     <div>
       <h1>Gimmemoji</h1>
+      <button onClick={handleButtonClick}>Evaluate the models</button>
+      {showEvalution && <Evaluator />}
+      <h2>Add emoji to your text</h2>
       <input type="text" value={userInput} onChange={handleInputChange} />
       <button onClick={handleSubmit}>Process</button>
-
+      {isLoading && <p>Loading...</p>}{" "}
       {processedInput.length > 0 && inputValue.length > 0 ? (
         <div>
           <h2>Models:</h2>
@@ -51,9 +60,6 @@ function App() {
           {inputValue} {processedInput[2]}
         </div>
       ) : null}
-
-      <button onClick={handleButtonClick}>Evaluate</button>
-      {showEvalution && <Evaluator />}
     </div>
   );
 }
