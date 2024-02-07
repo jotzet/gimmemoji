@@ -1,13 +1,11 @@
 import { useState } from "react";
-import { emotionMap } from "./utils/emotionMap";
-import TestingTable from "./components/testingTable";
-import { testData } from "./utils/testData";
+import Evaluator from "./components/Evaluator";
 
 function App() {
   const [userInput, setUserInput] = useState("");
   const [processedInput, setProcessedInput] = useState([]);
   const [inputValue, setInputValue] = useState("");
-  const [isTestingTableVisible, setIsTestingTableVisible] = useState(false);
+  const [showEvalution, setShowEvaluation] = useState(false);
 
   const handleSubmit = () => {
     setInputValue(userInput);
@@ -32,8 +30,8 @@ function App() {
     setUserInput(e.target.value);
   };
 
-  const handleTestButtonClick = () => {
-    setIsTestingTableVisible(true);
+  const handleButtonClick = () => {
+    setShowEvaluation(true);
   };
 
   return (
@@ -46,22 +44,16 @@ function App() {
         <div>
           <h2>Models:</h2>
           <h3>SamLowe/roberta-base-go_emotions</h3>
-          {inputValue} {emotionMap[processedInput[0].label]}
+          {inputValue} {processedInput[0]}
           <h3>michellejieli / emotion_text_classifier</h3>
-          {inputValue} {emotionMap[processedInput[1].label]}
+          {inputValue} {processedInput[1]}
           <h3>bhadresh-savani / bert-base-uncased-emotion </h3>
-          {inputValue} {emotionMap[processedInput[2].label]}
+          {inputValue} {processedInput[2]}
         </div>
       ) : null}
 
-      {isTestingTableVisible && (
-        <div>
-          <h4>Tests:</h4>
-          <TestingTable inputs={testData} />
-        </div>
-      )}
-
-      <button onClick={handleTestButtonClick}>Test the models</button>
+      <button onClick={handleButtonClick}>Evaluate</button>
+      {showEvalution && <Evaluator />}
     </div>
   );
 }
